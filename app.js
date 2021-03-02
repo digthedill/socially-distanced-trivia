@@ -59,7 +59,6 @@ io.on("connection", (socket) => {
   socket.on("userScore", async ({ user, room }) => {
     // update user score
     const updated = await updateUserScore(user, room)
-    console.log("on userScore recieval:", updated)
     const usersInRoom = await getUsersInRoom(room)
 
     if (updated) {

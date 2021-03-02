@@ -38,7 +38,6 @@ const getUser = async (socketId) => {
 }
 
 const updateUserScore = async (username, room) => {
-  console.log("have you made it this far???")
   const user = await User.findOneAndUpdate(
     {
       username,
