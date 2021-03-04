@@ -11,7 +11,9 @@ const userSchema = new Schema({
     required: true,
   },
   score: Number,
+  round: Number,
   socketId: String,
+  admin: Boolean,
 })
 
 userSchema.index(

@@ -1,26 +1,17 @@
 const User = require("../models/User")
-// const users = [];
 
-const addUser = async ({ username, room, socketId }) => {
+const addUser = async ({ username, room, admin, socketId }) => {
   username = username.trim().toLowerCase()
   room = room.trim().toLowerCase()
-
-  if (!username || !room) {
-    return {
-      error: "Username and Room are required",
-    }
-  }
-
-  // figure out a way to check for in use username's (schema)
-
   // Store User
   const doc = new User({
     username,
     room,
+    admin,
     score: 0,
+    round: 1,
     socketId,
   })
-
   // save to database
   return doc.save()
 }

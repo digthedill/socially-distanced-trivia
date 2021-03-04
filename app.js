@@ -37,23 +37,27 @@ io.on("connection", (socket) => {
   // USER REGISTRATION
 
   socket.on("join", async (payload) => {
-    const user = await addUser({
-      ...payload,
-      socketId: socket.id,
-    })
-    const usersInRoom = await getUsersInRoom(user.room)
+    try {
+      const user = await addUser({
+        ...payload,
+        socketId: socket.id,
+      })
+      const usersInRoom = await getUsersInRoom(user.room)
+      socket.join(user.room)
+      socket.emit("message", `${user.username} welcome to ${user.room}`)
+      socket.emit("userInfo", user)
 
-    socket.join(user.room)
-    socket.emit("message", `${user.username} welcome to ${user.room}`)
+      io.to(user.room).emit("roomData", {
+        room: user.room,
+        users: usersInRoom,
+      })
 
-    io.to(user.room).emit("roomData", {
-      room: user.room,
-      users: usersInRoom,
-    })
+      // Game Logistics
 
-    // Game Logistics
-
-    startGame.init(socket, io, user.room)
+      startGame(socket, io, user.room)
+    } catch (e) {
+      socket.emit("error", e)
+    }
   })
 
   socket.on("userScore", async ({ user, room }) => {
