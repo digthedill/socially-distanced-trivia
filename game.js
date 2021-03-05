@@ -48,12 +48,18 @@ const startGame = (socket, io, room) => {
     questions.forEach((question, i) => {
       setTimeout(() => {
         io.to(room).emit("timedQuestion", { ...question, index: i })
+        setTimeout(() => {
+          io.to(room).emit("showAnswer", question.correct_answer)
+          setTimeout(() => {
+            io.to(room).emit("clearAnswer")
+          }, 11500)
+        }, 10000)
 
         if (i === questions.length - 1) {
           io.to(room).emit("endOfGame")
           endRound(io, room)
         }
-      }, i * 5000)
+      }, i * 12000)
     })
   })
 }
