@@ -1,6 +1,6 @@
 const axios = require("axios")
 const User = require("./models/User")
-const { getUsersInRoom } = require("./utils/users")
+const { getUsersInRoom, getUser } = require("./utils/users")
 
 const fetchQuestions = async () => {
   const request = await axios({
@@ -11,7 +11,9 @@ const fetchQuestions = async () => {
   return request.data.results
 }
 
-const startGame = (socket, io, room) => {
+const startGame = async (socket, io, room) => {
+  // const user = await getUser(socket.id)
+
   socket.on("start", async () => {
     console.log("Game has started!")
     await User.updateMany(
@@ -20,6 +22,7 @@ const startGame = (socket, io, room) => {
         gameStarted: true,
       }
     )
+
     socket.to(room).emit("gameStartedInRoom")
 
     let questions = await fetchQuestions()
@@ -46,18 +49,20 @@ const startGame = (socket, io, room) => {
     // implement correct question display
 
     questions.forEach((question, i) => {
-      setTimeout(() => {
+      const eachQuestion = setTimeout(() => {
         io.to(room).emit("timedQuestion", { ...question, index: i })
-        setTimeout(() => {
+
+        const showAnswer = setTimeout(() => {
           io.to(room).emit("showAnswer", question.correct_answer)
           setTimeout(() => {
             io.to(room).emit("clearAnswer")
           }, 11500)
         }, 10000)
-
         if (i === questions.length - 1) {
           io.to(room).emit("endOfGame")
           endRound(io, room)
+          clearTimeout(eachQuestion)
+          clearTimeout(showAnswer)
         }
       }, i * 12000)
     })
